@@ -1,0 +1,9 @@
+package com.example.food_court_ms_traceability.domain.model;
+
+public class LogOrder {
+    private String pedidoId;
+    private String clienteId;
+    private String estado;
+    private LocalDateTime fechaCambio;
+
+}
