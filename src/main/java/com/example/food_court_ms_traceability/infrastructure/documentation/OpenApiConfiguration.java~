@@ -1,0 +1,4 @@
+package com.example.food_court_ms_traceability.infrastructure.documentation;
+
+public class OpenApiConfiguration {
+}
