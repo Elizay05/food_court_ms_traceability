@@ -9,6 +9,7 @@ import com.example.food_court_ms_traceability.infrastructure.output.mongo.entity
 import com.example.food_court_ms_traceability.infrastructure.output.mongo.mapper.ILogOrderEntityMapper;
 import com.example.food_court_ms_traceability.infrastructure.output.mongo.repository.ILogOrderRepository;
 import com.example.food_court_ms_traceability.infrastructure.util.ErrorMessages;
+import com.example.food_court_ms_traceability.infrastructure.util.OrderStatus;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -38,11 +39,42 @@ public class LogOrderAdapter implements ILogOrderPersistencePort {
                 .allMatch(log -> log.getClienteId().equals(clienteId));
 
         if (!allMatch) {
-            throw new UnauthorizedAccessException(ErrorMessages.UNAUTHORIZED_ACCESS);
+            throw new UnauthorizedAccessException(ErrorMessages.UNAUTHORIZED_HISTORY_ACCESS);
         }
 
         return logs.stream()
                 .map(log -> new LogOrderResponse(log.getEstado(), log.getFechaCambio()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LogOrder> getOrderLogs(String pedidoId, String restauranteId) {
+        List<LogOrderEntity> logOrder = logOrderRepository.findByPedidoId(pedidoId);
+
+        if (logOrder.isEmpty()) {
+            throw new OrderHistoryNotFoundException(ErrorMessages.HISTORY_ORDER_NOT_FOUND);
+        }
+
+        boolean allMatch = logOrder.stream()
+                .allMatch(log -> log.getRestauranteId().equals(restauranteId));
+
+        if (!allMatch) {
+            throw new UnauthorizedAccessException(ErrorMessages.UNAUTHORIZED_ORDER_EFFICIENCY_ACCESS);
+        }
+
+        return logOrder.stream()
+                .map(logOrderEntityMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<LogOrder> getAllOrderLogs(String restauranteId) {
+        List<LogOrderEntity> logs = logOrderRepository.findAll();
+
+        return logs.stream()
+                .filter(log -> !log.getEstado().equalsIgnoreCase(OrderStatus.PENDING))
+                .filter(log -> log.getRestauranteId().equals(restauranteId))
+                .map(logOrderEntityMapper::toDomain)
                 .collect(Collectors.toList());
     }
 }

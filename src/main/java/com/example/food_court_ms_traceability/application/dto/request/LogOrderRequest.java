@@ -16,6 +16,11 @@ public class LogOrderRequest {
     @NotBlank(message = "El ID del cliente es obligatorio")
     private String clienteId;
 
+    @NotBlank(message = "El ID del restaurante es obligatorio")
+    private String restauranteId;
+
+    private String chefId;
+
     @NotBlank(message = "El estado no puede estar vacío")
     private String estado;
 }

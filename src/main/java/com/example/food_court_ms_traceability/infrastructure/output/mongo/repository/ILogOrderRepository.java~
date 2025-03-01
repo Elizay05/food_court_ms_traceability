@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface ILogOrderRepository extends MongoRepository<LogOrderEntity, String> {
     List<LogOrderEntity> findByPedidoId(String pedidoId);
-    List<LogOrderEntity> findByPedidoIdAndRestauranteId(String pedidoId, String restauranteId);
+    List<LogOrderEntity> findByPedidoIdOrderByFechaCambioAsc(String pedidoId);
     List<LogOrderEntity> findAll();
 }

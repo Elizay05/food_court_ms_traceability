@@ -51,12 +51,10 @@ public class LogOrderUseCase implements ILogOrderServicePort {
         List<LogOrder> allLogs = logOrderPersistencePort.getAllOrderLogs(restauranteId);
 
         Map<String, List<LogOrder>> employeeLogs = allLogs.stream()
-                .filter(log -> log.getChefId() != null && !log.getChefId().isEmpty())
-                .collect(Collectors.groupingBy(LogOrder::getChefId));
+                .collect(Collectors.groupingBy(LogOrder::getClienteId));
 
         return employeeLogs.entrySet().stream()
                 .map(entry -> {
-                    String chefId = entry.getKey();
                     List<LogOrder> logs = entry.getValue();
 
                     logs.sort(Comparator.comparing(LogOrder::getFechaCambio));
@@ -64,8 +62,10 @@ public class LogOrderUseCase implements ILogOrderServicePort {
                     LocalDateTime fechaInicio = logs.get(0).getFechaCambio();
 
                     List<Duration> durations = logs.stream()
-                            .map(log -> Duration.between(fechaInicio, log.getFechaCambio()))
-                            .filter(d -> !d.isNegative())
+                            .map(log -> {
+                                Duration d = Duration.between(fechaInicio, log.getFechaCambio());
+                                return d.isNegative() ? Duration.ZERO : d;
+                            })
                             .collect(Collectors.toList());
 
                     double avgSeconds = durations.stream()
@@ -76,7 +76,7 @@ public class LogOrderUseCase implements ILogOrderServicePort {
                     long minutes = (long) avgSeconds / 60;
                     long seconds = (long) avgSeconds % 60;
 
-                    return new EmployeeEfficiency(chefId, minutes, seconds);
+                    return new EmployeeEfficiency(entry.getKey(), minutes, seconds);
                 })
                 .sorted(Comparator.comparingLong(EmployeeEfficiency::getMinutes)
                         .thenComparingLong(EmployeeEfficiency::getSeconds))

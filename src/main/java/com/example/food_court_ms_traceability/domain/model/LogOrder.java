@@ -5,12 +5,16 @@ import java.time.LocalDateTime;
 public class LogOrder {
     private String pedidoId;
     private String clienteId;
+    private String restauranteId;
+    private String chefId;
     private String estado;
     private LocalDateTime fechaCambio;
 
-    public LogOrder(String pedidoId, String clienteId, String estado, LocalDateTime fechaCambio) {
+    public LogOrder(String pedidoId, String clienteId, String restauranteId, String chefId, String estado, LocalDateTime fechaCambio) {
         this.pedidoId = pedidoId;
         this.clienteId = clienteId;
+        this.chefId = chefId;
+        this.restauranteId = restauranteId;
         this.estado = estado;
         this.fechaCambio = fechaCambio;
     }
@@ -29,6 +33,22 @@ public class LogOrder {
 
     public void setClienteId(String clienteId) {
         this.clienteId = clienteId;
+    }
+
+    public String getRestauranteId() {
+        return restauranteId;
+    }
+
+    public void setRestauranteId(String restauranteId) {
+        this.restauranteId = restauranteId;
+    }
+
+    public String getChefId() {
+        return chefId;
+    }
+
+    public void setChefId(String chefId) {
+        this.chefId = chefId;
     }
 
     public String getEstado() {

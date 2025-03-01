@@ -1,7 +1,9 @@
 package com.example.food_court_ms_traceability.infrastructure.input.rest;
 
 import com.example.food_court_ms_traceability.application.dto.request.LogOrderRequest;
+import com.example.food_court_ms_traceability.application.dto.response.EmployeeEfficiencyResponse;
 import com.example.food_court_ms_traceability.application.dto.response.LogOrderResponse;
+import com.example.food_court_ms_traceability.application.dto.response.OrderEfficiencyResponse;
 import com.example.food_court_ms_traceability.application.handler.ILogOrderHandler;
 import com.example.food_court_ms_traceability.infrastructure.util.RoleConstants;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,5 +53,34 @@ public class LogOrderController {
     @PreAuthorize("hasRole('" + RoleConstants.CUSTOMER + "')")
     public List<LogOrderResponse> getHistoryOrder(@PathVariable String pedidoId) {
         return logOrderHandler.getHistoryOrder(pedidoId);
+    }
+
+    @Operation(
+            summary = "Get order completion time",
+            description = "Retrieves the total time taken for an order from start to finish."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Order time retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Order not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/order/{pedidoId}/efficiency")
+    @PreAuthorize("hasRole('" + RoleConstants.OWNER + "')")
+    public OrderEfficiencyResponse getOrderEfficiency(@PathVariable String pedidoId) {
+        return logOrderHandler.getOrderEfficiency(pedidoId);
+    }
+
+    @Operation(
+            summary = "Get employees efficiency ranking",
+            description = "Retrieves a ranking of employees based on their order completion time."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Ranking retrieved successfully"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/employees/efficiency-ranking")
+    @PreAuthorize("hasRole('" + RoleConstants.OWNER + "')")
+    public List<EmployeeEfficiencyResponse> getEmployeeEfficiencyRanking() {
+        return logOrderHandler.getEmployeeEfficiencyRanking();
     }
 }

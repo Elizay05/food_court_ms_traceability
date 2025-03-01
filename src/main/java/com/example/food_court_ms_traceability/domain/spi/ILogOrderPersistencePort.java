@@ -8,4 +8,6 @@ import java.util.List;
 public interface ILogOrderPersistencePort {
     void saveLog(LogOrder logOrder);
     List<LogOrderResponse> getHistoryOrder(String pedidoId, String clienteId);
+    List<LogOrder> getOrderLogs(String pedidoId, String restauranteId);
+    List<LogOrder> getAllOrderLogs(String restauranteId);
 }
