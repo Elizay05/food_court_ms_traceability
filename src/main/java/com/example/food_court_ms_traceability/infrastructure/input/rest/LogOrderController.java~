@@ -97,7 +97,7 @@ public class LogOrderController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @DeleteMapping("/order/{pedidoId}")
-    @PreAuthorize("hasRole('" + RoleConstants.CUSTOMER + "')")
+    @PreAuthorize("hasRole('" + RoleConstants.EMPLOYEE + "') or hasRole('" + RoleConstants.ADMIN + "')")
     public ResponseEntity<Void> deleteOrderLogs(@PathVariable String pedidoId) {
         logOrderHandler.deleteOrderLogs(pedidoId);
         return ResponseEntity.noContent().build();

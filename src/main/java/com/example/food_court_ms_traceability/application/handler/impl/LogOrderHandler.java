@@ -61,4 +61,10 @@ public class LogOrderHandler implements ILogOrderHandler {
         return employeeEfficiencyResponseMapper.toResponse(employeeEfficiencies);
     }
 
+    @Override
+    public void deleteOrderLogs(String pedidoId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        logOrderServicePort.deleteOrderLogs(pedidoId, userDetails.getDocumentNumber());
+    }
 }

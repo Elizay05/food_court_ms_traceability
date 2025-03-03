@@ -12,5 +12,5 @@ public interface ILogOrderHandler {
     List<LogOrderResponse> getHistoryOrder(String pedidoId);
     OrderEfficiencyResponse getOrderEfficiency(String pedidoId);
     List<EmployeeEfficiencyResponse> getEmployeeEfficiencyRanking();
-    void deleteOrderLogs(String pedidoId);
+    
 }

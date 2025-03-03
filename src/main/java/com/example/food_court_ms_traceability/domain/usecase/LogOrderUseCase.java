@@ -2,10 +2,13 @@ package com.example.food_court_ms_traceability.domain.usecase;
 
 import com.example.food_court_ms_traceability.application.dto.response.LogOrderResponse;
 import com.example.food_court_ms_traceability.domain.api.ILogOrderServicePort;
+import com.example.food_court_ms_traceability.domain.exception.OrderLogsNotFoundException;
+import com.example.food_court_ms_traceability.domain.exception.UnauthorizedAccessException;
 import com.example.food_court_ms_traceability.domain.model.EmployeeEfficiency;
 import com.example.food_court_ms_traceability.domain.model.LogOrder;
 import com.example.food_court_ms_traceability.domain.model.OrderEfficiency;
 import com.example.food_court_ms_traceability.domain.spi.ILogOrderPersistencePort;
+import com.example.food_court_ms_traceability.domain.util.ExceptionConstants;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
@@ -28,12 +31,34 @@ public class LogOrderUseCase implements ILogOrderServicePort {
 
     @Override
     public List<LogOrderResponse> getHistoryOrder(String pedidoId, String clienteId) {
-        return logOrderPersistencePort.getHistoryOrder(pedidoId, clienteId);
+        boolean exists = logOrderPersistencePort.existsByPedidoId(pedidoId);
+        if (!exists) {
+            throw new OrderLogsNotFoundException(ExceptionConstants.HISTORY_ORDER_NOT_FOUND);
+        }
+
+        List<LogOrder> logs = logOrderPersistencePort.getLogsByPedidoId(pedidoId);
+        boolean isAssociated = logs.stream().anyMatch(log -> log.getClienteId().equals(clienteId));
+
+        if (!isAssociated) {
+            throw new UnauthorizedAccessException(ExceptionConstants.UNAUTHORIZED_HISTORY_ACCESS);
+        }
+        return logOrderPersistencePort.getHistoryOrder(pedidoId);
     }
 
     @Override
     public OrderEfficiency getOrderEfficiency(String pedidoId, String restauranteId) {
-        List<LogOrder> logs = logOrderPersistencePort.getOrderLogs(pedidoId, restauranteId);
+        boolean exists = logOrderPersistencePort.existsByPedidoId(pedidoId);
+        if (!exists) {
+            throw new OrderLogsNotFoundException(ExceptionConstants.HISTORY_ORDER_NOT_FOUND);
+        }
+        List<LogOrder> logs = logOrderPersistencePort.getOrderLogs(pedidoId);
+
+        boolean allMatch = logs.stream()
+                .allMatch(log -> log.getRestauranteId().equals(restauranteId));
+
+        if (!allMatch) {
+            throw new UnauthorizedAccessException(ExceptionConstants.UNAUTHORIZED_ORDER_EFFICIENCY_ACCESS);
+        }
 
         LocalDateTime startTime = logs.get(0).getFechaCambio();
         LocalDateTime endTime = logs.get(logs.size() - 1).getFechaCambio();
@@ -81,5 +106,22 @@ public class LogOrderUseCase implements ILogOrderServicePort {
                 .sorted(Comparator.comparingLong(EmployeeEfficiency::getMinutes)
                         .thenComparingLong(EmployeeEfficiency::getSeconds))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteOrderLogs(String pedidoId, String clienteId) {
+        boolean exists = logOrderPersistencePort.existsByPedidoId(pedidoId);
+        if (!exists) {
+            throw new OrderLogsNotFoundException(ExceptionConstants.HISTORY_ORDER_NOT_FOUND);
+        }
+
+        List<LogOrder> logs = logOrderPersistencePort.getLogsByPedidoId(pedidoId);
+        boolean isAssociated = logs.stream().anyMatch(log -> log.getClienteId().equals(clienteId));
+
+        if (!isAssociated) {
+            throw new UnauthorizedAccessException(ExceptionConstants.UNAUTHORIZED_ORDER_DELETE_ACCESS);
+        }
+
+        logOrderPersistencePort.deleteLogsByPedidoId(pedidoId);
     }
 }
