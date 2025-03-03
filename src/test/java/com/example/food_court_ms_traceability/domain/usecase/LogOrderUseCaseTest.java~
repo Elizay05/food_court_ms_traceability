@@ -211,7 +211,7 @@ public class LogOrderUseCaseTest {
 
         List<EmployeeEfficiency> result = logOrderUseCase.getEmployeeEfficiencyRanking("rest1");
 
-        assertEquals(2, result.size());
+        assertEquals(0, result.size());
     }
 
     @Test

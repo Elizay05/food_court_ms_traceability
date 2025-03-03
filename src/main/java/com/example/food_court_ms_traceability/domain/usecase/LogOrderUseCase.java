@@ -9,6 +9,7 @@ import com.example.food_court_ms_traceability.domain.model.LogOrder;
 import com.example.food_court_ms_traceability.domain.model.OrderEfficiency;
 import com.example.food_court_ms_traceability.domain.spi.ILogOrderPersistencePort;
 import com.example.food_court_ms_traceability.domain.util.ExceptionConstants;
+import com.example.food_court_ms_traceability.domain.util.OrderStatus;
 import lombok.RequiredArgsConstructor;
 
 import java.time.Duration;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -84,13 +86,26 @@ public class LogOrderUseCase implements ILogOrderServicePort {
                     String chefId = entry.getKey();
                     List<LogOrder> logs = entry.getValue();
 
-                    logs.sort(Comparator.comparing(LogOrder::getFechaCambio));
+                    Map<String, List<LogOrder>> pedidosPorChef = logs.stream()
+                            .collect(Collectors.groupingBy(LogOrder::getPedidoId));
 
-                    LocalDateTime fechaInicio = logs.get(0).getFechaCambio();
+                    List<Duration> durations = pedidosPorChef.values().stream()
+                            .map(pedidoLogs -> {
+                                pedidoLogs.sort(Comparator.comparing(LogOrder::getFechaCambio));
 
-                    List<Duration> durations = logs.stream()
-                            .map(log -> Duration.between(fechaInicio, log.getFechaCambio()))
-                            .filter(d -> !d.isNegative())
+                                LocalDateTime inicio = null, fin = null;
+                                for (LogOrder log : pedidoLogs) {
+                                    if (OrderStatus.IN_PROGRESS.equals(log.getEstado())) {
+                                        inicio = log.getFechaCambio();
+                                    } else if (OrderStatus.READY.equals(log.getEstado())) {
+                                        fin = log.getFechaCambio();
+                                        break;
+                                    }
+                                }
+
+                                return (inicio != null && fin != null) ? Duration.between(inicio, fin) : null;
+                            })
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toList());
 
                     double avgSeconds = durations.stream()
