@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface ILogOrderRepository extends MongoRepository<LogOrderEntity, String> {
     List<LogOrderEntity> findByPedidoId(String pedidoId);
+    List<LogOrderEntity> findAll();
+    void deleteByPedidoId(String pedidoId);
+    boolean existsByPedidoId(String pedidoId);
 }

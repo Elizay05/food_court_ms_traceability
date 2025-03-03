@@ -1,8 +1,8 @@
 package com.example.food_court_ms_traceability.infrastructure.exceptionHandler;
 
-import com.example.food_court_ms_traceability.infrastructure.exception.OrderHistoryNotFoundException;
-import com.example.food_court_ms_traceability.infrastructure.exception.UnauthorizedAccessException;
-import com.example.food_court_ms_traceability.infrastructure.util.ErrorMessages;
+import com.example.food_court_ms_traceability.domain.exception.OrderLogsNotFoundException;
+import com.example.food_court_ms_traceability.domain.exception.UnauthorizedAccessException;
+import com.example.food_court_ms_traceability.domain.util.ExceptionConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,24 +22,24 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void shouldHandleOrderHistoryNotFoundException() {
-        OrderHistoryNotFoundException exception = new OrderHistoryNotFoundException(ErrorMessages.HISTORY_ORDER_NOT_FOUND);
+    void shouldHandleOrderLogsNotFoundException() {
+        OrderLogsNotFoundException exception = new OrderLogsNotFoundException(ExceptionConstants.HISTORY_ORDER_NOT_FOUND);
 
-        ResponseEntity<ExceptionResponse> response = globalExceptionHandler.handleOrderHistoryNotFoundException(exception);
+        ResponseEntity<ExceptionResponse> response = globalExceptionHandler.handleOrderLogsNotFoundException(exception);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(ErrorMessages.HISTORY_ORDER_NOT_FOUND, response.getBody().getMessage());
+        assertEquals(ExceptionConstants.HISTORY_ORDER_NOT_FOUND, response.getBody().getMessage());
         assertEquals(HttpStatus.NOT_FOUND.toString(), response.getBody().getStatus());
     }
 
     @Test
     void shouldHandleUnauthorizedAccessException() {
-        UnauthorizedAccessException exception = new UnauthorizedAccessException(ErrorMessages.UNAUTHORIZED_ACCESS);
+        UnauthorizedAccessException exception = new UnauthorizedAccessException(ExceptionConstants.UNAUTHORIZED_ORDER_EFFICIENCY_ACCESS);
 
         ResponseEntity<ExceptionResponse> response = globalExceptionHandler.handleUnauthorizedAccessException(exception);
 
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertEquals(ErrorMessages.UNAUTHORIZED_ACCESS, response.getBody().getMessage());
+        assertEquals(ExceptionConstants.UNAUTHORIZED_ORDER_EFFICIENCY_ACCESS, response.getBody().getMessage());
         assertEquals(HttpStatus.FORBIDDEN.toString(), response.getBody().getStatus());
     }
 }

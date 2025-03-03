@@ -13,6 +13,8 @@ public class LogOrderEntity {
     private String id;
     private String clienteId;
     private String pedidoId;
+    private String restauranteId;
+    private String chefId;
     private String estado;
     private LocalDateTime fechaCambio;
 }
